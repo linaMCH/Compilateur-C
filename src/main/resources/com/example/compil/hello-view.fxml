@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.compil.HelloController">
+
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <HBox spacing="20" alignment="CENTER_LEFT"
+              style="-fx-background-color:white; -fx-padding:10;">
+
+            <Label text="📘"
+                   style="-fx-font-size:20;"/>
+
+            <Label text="Compilateur C"
+                   style="-fx-font-size:18; -fx-font-weight:bold;"/>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <!-- MENU HORIZONTAL -->
+            <Button fx:id="fileButton"
+                    text="Fichier"
+                    onAction="#showFileMenu"
+                    style="-fx-background-color:transparent; -fx-font-size:14;"/>
+
+            <Button fx:id="helpButton"
+                    text="Aide"
+                    onAction="#showHelpMenu"
+                    style="-fx-background-color:transparent; -fx-font-size:14;"/>
+
+            <Separator orientation="VERTICAL"/>
+
+            <!-- ACTION BUTTONS -->
+            <Button text="⟳ Compiler"
+                    onAction="#handleCompile"
+                    style="-fx-background-color:#2d6cdf; -fx-text-fill:white; -fx-font-weight:bold;"/>
+
+            <Button text="▶ Exécuter"
+                    onAction="#handleExecute"
+                    style="-fx-background-color:#1db954; -fx-text-fill:white; -fx-font-weight:bold;"/>
+
+            <Button text="🗑 Effacer"
+                    onAction="#handleClear"/>
+
+        </HBox>
+    </top>
+
+    <!-- CENTER -->
+    <center>
+        <VBox spacing="10" style="-fx-padding:10;">
+            <Label text="Éditeur de code"/>
+
+            <TextArea fx:id="codeArea"
+                      prefHeight="300"/>
+
+            <Label text="Sortie du compilateur"/>
+
+            <TabPane>
+                <Tab text="Analyse Lexicale">
+                    <TextArea fx:id="lexArea"/>
+                </Tab>
+                <Tab text="Analyse Syntaxique">
+                    <TextArea/>
+                </Tab>
+                <Tab text="Exécution">
+                    <TextArea fx:id="exeArea"/>
+                </Tab>
+            </TabPane>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM -->
+    <bottom>
+        <HBox spacing="20" style="-fx-padding:5; -fx-background-color:#e0e0e0;">
+            <Label fx:id="infoLabel"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="statusLabel" text="Prêt"/>
+        </HBox>
+    </bottom>
+
+</BorderPane>
