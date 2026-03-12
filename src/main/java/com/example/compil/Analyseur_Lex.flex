@@ -29,6 +29,8 @@ Commentaire      = "//" .* | "/*" ([^*] | \*+ [^/*])* \*+ "/"
   /* MOTS CLES */
   "int"      { printToken("INT"); return "INT"; }
   "float"    { printToken("FLOAT"); return "FLOAT"; }
+  "double"    { printToken("DOUBLE"); return "DOUBLE"; }
+  "const"    { printToken("CONST"); return "CONST"; }
   "char"     { printToken("CHAR"); return "CHAR"; }
   "void"     { printToken("VOID"); return "VOID"; }
   "return"   { printToken("RETURN"); return "RETURN"; }
@@ -37,6 +39,10 @@ Commentaire      = "//" .* | "/*" ([^*] | \*+ [^/*])* \*+ "/"
   "for"      { printToken("FOR"); return "FOR"; }
   "while"    { printToken("WHILE"); return "WHILE"; }
   "do"       { printToken("DO"); return "DO"; }
+  "switch"   { printToken("SWITCH"); return "SWITCH"; }
+  "case"     { printToken("CASE"); return "CASE"; }
+  "import"   { printToken("IMPORT"); return "IMPORT"; }
+  "define"   { printToken("DEFINE"); return "DEFINE"; }
 
   /* OPERATEURS ARETHMETIQUES */
   "++"       { printToken("INC"); return "INC"; }
