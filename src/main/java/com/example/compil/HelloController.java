@@ -10,6 +10,7 @@ import java.io.StringReader;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public class HelloController {
 
@@ -134,31 +135,18 @@ public class HelloController {
 
     @FXML
     void handleCompile() {
-        String source = codeArea.getText();
-        if (source.isEmpty()) {
-            lexArea.setText(" ");
-            return;
+
+        String code = codeArea.getText();
+
+        List<Token> tokens = LexerRunner.tokenize(code);
+
+        StringBuilder result = new StringBuilder();
+
+        for(Token t : tokens){
+            result.append(t.toString()).append("\n");
         }
 
-        StringReader reader = new StringReader(source);
-        Analyseur_lex lexer = new Analyseur_lex(reader);
-
-        StringBuilder output = new StringBuilder();
-        output.append("--- RÉSULTAT DE L'ANALYSE LEXICALE ---\n\n");
-
-        try {
-            String tokenType;
-            while ((tokenType = lexer.yylex()) != null) {
-                String lexeme = lexer.yytext();
-                output.append(String.format("[%s] \t %s\n", tokenType, lexeme));
-            }
-            lexArea.setText(output.toString());
-            statusLabel.setText("Analyse lexicale terminée");
-
-        } catch (Exception e) {
-            lexArea.setText("Erreur durant l'analyse :\n" + e.getMessage());
-            statusLabel.setText("Échec de l'analyse");
-        }
+        lexArea.setText(result.toString());
     }
 
     @FXML

@@ -3,14 +3,16 @@
 %public
 %class Analyseur_lex
 %unicode
-%type String
+%type Token
 %line
 %column
 
 %{
-  private void printToken(String name) {
-    System.out.println("<" + name + ", '" + yytext() + "'> à la ligne " + (yyline+1) + ", col " + (yycolumn+1));
-  }
+import com.example.compil.Token;
+
+private Token token(String type){
+    return new Token(type, yytext(), yyline+1, yycolumn+1);
+}
 %}
 
 /* EXP REGULIERE */
@@ -27,54 +29,73 @@ Commentaire      = "//" .* | "/*" ([^*] | \*+ [^/*])* \*+ "/"
 <YYINITIAL> {
 
   /* MOTS CLES */
-  "int"      { printToken("INT"); return "INT"; }
-  "float"    { printToken("FLOAT"); return "FLOAT"; }
-  "double"    { printToken("DOUBLE"); return "DOUBLE"; }
-  "const"    { printToken("CONST"); return "CONST"; }
-  "char"     { printToken("CHAR"); return "CHAR"; }
-  "void"     { printToken("VOID"); return "VOID"; }
-  "return"   { printToken("RETURN"); return "RETURN"; }
-  "if"       { printToken("IF"); return "IF"; }
-  "else"     { printToken("ELSE"); return "ELSE"; }
-  "for"      { printToken("FOR"); return "FOR"; }
-  "while"    { printToken("WHILE"); return "WHILE"; }
-  "do"       { printToken("DO"); return "DO"; }
-  "switch"   { printToken("SWITCH"); return "SWITCH"; }
-  "case"     { printToken("CASE"); return "CASE"; }
-  "import"   { printToken("IMPORT"); return "IMPORT"; }
-  "define"   { printToken("DEFINE"); return "DEFINE"; }
+  "int"      { return token("INT"); }
+  "float"    { return token("FLOAT"); }
+  "double"   { return token("DOUBLE"); }
+  "const"    { return token("CONST"); }
+  "char"     { return token("CHAR"); }
+  "void"     { return token("VOID"); }
 
-  /* OPERATEURS ARETHMETIQUES */
-  "++"       { printToken("INC"); return "INC"; }
-  "--"       { printToken("DEC"); return "DEC"; }
-  "+"        { printToken("PLUS"); return "PLUS"; }
-  "-"        { printToken("MOINS"); return "MOINS"; }
-  "*"        { printToken("MULT"); return "MULT"; }
-  "/"        { printToken("DIV"); return "DIV"; }
+  "return"   { return token("RETURN"); }
+  "if"       { return token("IF"); }
+  "else"     { return token("ELSE"); }
+  "for"      { return token("FOR"); }
+  "while"    { return token("WHILE"); }
+  "do"       { return token("DO"); }
+  "switch"   { return token("SWITCH"); }
+  "case"     { return token("CASE"); }
 
-  /* OPERATEURS DE COMPARAISON */
-  "=="       { printToken("EQL"); return "EQL"; }
-  "="        { printToken("AFFECT"); return "AFFECT"; }
-  "<"        { printToken("INF"); return "INF"; }
-  ">"        { printToken("SUP"); return "SUP"; }
-  "<="       { printToken("INF_EQL"); return "INF_EQL"; }
-  ">="       { printToken("SUP_EQL"); return "SUP_EQL"; }
+  "#include" { return token("INCLUDE"); }
+  "#define"  { return token("DEFINE"); }
+
+  /* OPERATEURS */
+  "++" { return token("INC"); }
+  "--" { return token("DEC"); }
+  "+"  { return token("PLUS"); }
+  "-"  { return token("MOINS"); }
+  "*"  { return token("MULT"); }
+  "/"  { return token("DIV"); }
+
+  /* COMPARAISON */
+  "==" { return token("EQL"); }
+  "="  { return token("AFFECT"); }
+  "<"  { return token("INF"); }
+  ">"  { return token("SUP"); }
+  "<=" { return token("INF_EQL"); }
+  ">=" { return token("SUP_EQL"); }
+
+  /* LOGIQUE */
+  "&&" { return token("AND"); }
+  "||" { return token("OR"); }
+  "!"  { return token("NOT"); }
 
   /* SEPARATEURS */
-  ","        { printToken("COMMA"); return "COMMA"; }
-  ";"        { printToken("SEMICOL"); return "SEMICOL"; }
-  "."        { printToken("DOT"); return "DOT"; }
-  "("        { printToken("OUV_PAREN"); return "OUV_PAREN"; }
-  ")"        { printToken("FER_PAREN"); return "FER_PAREN"; }
-  "{"        { printToken("CROCH_OUV"); return "CROCH_OUV"; }
-  "}"        { printToken("CROCH_FER"); return "CROCH_FER"; }
+  "," { return token("COMMA"); }
+  ";" { return token("SEMICOL"); }
 
-  /* IDENTIFICATEURS ET NOMBRES */
-  {Identificateur} { printToken("ID"); return "ID"; }
-  {Entier}         { printToken("NUM_INT"); return "NUM_INT"; }
-  {Reel}       { printToken("NUM_FLOAT"); return "NUM_FLOAT"; }
+  "(" { return token("OUV_PAREN"); }
+  ")" { return token("FER_PAREN"); }
 
-  /* INGNORER LES ESPACES ET COMMENTAIRES */
-  {Espace}       { /* ignore */ }
-  {Commentaire}  { /* ignore */ }
+  "{" { return token("CROCH_OUV"); }
+  "}" { return token("CROCH_FER"); }
+
+  /* IDENTIFICATEURS */
+  {Identificateur} { return token("ID"); }
+
+  /* NOMBRES */
+  {Entier} { return token("NUM_INT"); }
+  {Reel}   { return token("NUM_FLOAT"); }
+
+  /* IGNORER */
+  {Espace} { }
+  {Commentaire} { }
+
+  /* ERREUR LEXICALE */
+  . {
+      System.out.println(
+        "Erreur lexicale : '" + yytext() +
+        "' ligne " + (yyline+1)
+      );
   }
+
+}
