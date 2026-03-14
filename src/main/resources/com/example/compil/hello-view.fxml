@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
+<?import org.fxmisc.richtext.CodeArea?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.compil.HelloController">
@@ -53,7 +54,7 @@
         <VBox spacing="10" style="-fx-padding:10;">
             <Label text="Éditeur de code"/>
 
-            <TextArea fx:id="codeArea"
+            <CodeArea fx:id="codeArea"
                       prefHeight="300"/>
 
             <Label text="Sortie du compilateur"/>

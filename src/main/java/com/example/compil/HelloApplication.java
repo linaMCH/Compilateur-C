@@ -12,6 +12,9 @@ public class HelloApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(
                 HelloApplication.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 700);
+
+        scene.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+
         stage.setTitle("Compilateur C");
         stage.setScene(scene);
         stage.show();
