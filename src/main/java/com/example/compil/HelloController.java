@@ -1,10 +1,14 @@
 package com.example.compil;
 
+import com.example.compil.ast.StatementNode;
+import com.example.compil.parser.Parser;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.geometry.Side;
+
+import javax.swing.*;
 import java.io.StringReader;
 
 import java.io.File;
@@ -21,6 +25,7 @@ public class HelloController {
     @FXML private Label statusLabel;
     @FXML private Button fileButton;
     @FXML private Button helpButton;
+    @FXML private TextArea syntaxArea;
 
     // ===== MENU STYLE =====
 
@@ -71,7 +76,7 @@ public class HelloController {
         MenuItem about = new MenuItem("ℹ À propos");
         about.setOnAction(e -> showAbout());
 
-        MenuItem doc = new MenuItem("📘 Documentation");
+        MenuItem doc = new MenuItem("Documentation");
         doc.setOnAction(e -> showDoc());
 
         menu.getItems().addAll(about, doc);
@@ -135,18 +140,37 @@ public class HelloController {
 
     @FXML
     void handleCompile() {
-
         String code = codeArea.getText();
 
         List<Token> tokens = LexerRunner.tokenize(code);
 
-        StringBuilder result = new StringBuilder();
-
+        // Affichage lexicale
+        StringBuilder lexResult = new StringBuilder();
         for(Token t : tokens){
-            result.append(t.toString()).append("\n");
+            lexResult.append(t.toString()).append("\n");
+        }
+        lexArea.setText(lexResult.toString());
+
+        // Analyse syntaxique
+        Parser parser = new Parser(tokens);
+        List<StatementNode> statements = parser.parse();
+
+        // Affichage syntaxique
+        StringBuilder syntaxResult = new StringBuilder();
+        for (StatementNode stmt : statements) {
+            syntaxResult.append(stmt.prettyPrint(0)).append("\n");
         }
 
-        lexArea.setText(result.toString());
+        // Affichage des erreurs
+        List<String> errors = parser.getErrors();
+        if (!errors.isEmpty()) {
+            syntaxResult.append("\n--- ERREURS ---\n");
+            for (String err : errors) {
+                syntaxResult.append(err).append("\n");
+            }
+        }
+
+        syntaxArea.setText(syntaxResult.toString()); // syntaxArea doit être un TextArea connecté via @FXML
     }
 
     @FXML

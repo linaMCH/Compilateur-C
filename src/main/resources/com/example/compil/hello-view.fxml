@@ -63,7 +63,7 @@
                     <TextArea fx:id="lexArea"/>
                 </Tab>
                 <Tab text="Analyse Syntaxique">
-                    <TextArea/>
+                    <TextArea fx:id="syntaxArea"/>
                 </Tab>
                 <Tab text="Exécution">
                     <TextArea fx:id="exeArea"/>
