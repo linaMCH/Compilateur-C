@@ -1,16 +1,28 @@
 package com.example.compil.ast;
 
 public class VariableDeclarationNode extends StatementNode {
-    private String type;
-    private String name;
 
-    public VariableDeclarationNode(String type, String name) {
+    private String type;
+    private String variable;
+    private ExpressionNode initializer;
+
+    public VariableDeclarationNode(String type, String variable) {
+        this(type, variable, null);
+    }
+
+    public VariableDeclarationNode(String type, String variable, ExpressionNode initializer) {
         this.type = type;
-        this.name = name;
+        this.variable = variable;
+        this.initializer = initializer;
     }
 
     @Override
     public String prettyPrint(int indent) {
-        return indent(indent) + "Declaration: " + type + " " + name;
+        String ind = indent(indent);
+        String result = ind + "Declaration: " + type + " " + variable;
+        if (initializer != null) {
+            result += " = " + initializer.prettyPrint(0);
+        }
+        return result;
     }
 }

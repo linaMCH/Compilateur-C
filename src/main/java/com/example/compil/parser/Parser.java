@@ -101,15 +101,26 @@ public class Parser {
     private StatementNode parseVariableDeclaration() {
         Token typeToken = consume();
         Token idToken = consume();
+
         if (idToken == null || !idToken.getType().equals("ID")) {
             error("identificateur attendu", idToken);
             return null;
         }
+
+        ExpressionNode initializer = null;
+
+        // Si il y a un '=' juste après la déclaration
+        if (peek() != null && peek().getType().equals("AFFECT")) {
+            consume(); // consomme '='
+            initializer = parseExpression();
+        }
+
         if (!match("SEMICOL")) {
             error("';' attendu", peek());
             return null;
         }
-        return new VariableDeclarationNode(typeToken.getValue(), idToken.getValue());
+
+        return new VariableDeclarationNode(typeToken.getValue(), idToken.getValue(), initializer);
     }
 
     // ================== Assignation / Unary ==================
