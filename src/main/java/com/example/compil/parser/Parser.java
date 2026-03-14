@@ -63,6 +63,7 @@ public class Parser {
         return statements;
     }
 
+    // ================== Statements ==================
     private StatementNode parseStatement() {
         Token t = peek();
         if (t == null) return null;
@@ -77,44 +78,64 @@ public class Parser {
                 return parseVariableDeclaration();
 
             case "ID":
-                return parseAssignment();
+                return parseAssignmentOrUnary();
 
             case "IF":
             case "WHILE":
+            case "FOR":
+            case "DO":
                 return parseControlStatement();
+
+            case "SWITCH":
+                return parseSwitchStatement();
+
+            case "RETURN":
+                return parseReturnStatement();
 
             default:
                 return null;
         }
     }
 
+    // ================== Déclarations ==================
     private StatementNode parseVariableDeclaration() {
-        Token typeToken = consume(); // int, float, etc.
+        Token typeToken = consume();
         Token idToken = consume();
         if (idToken == null || !idToken.getType().equals("ID")) {
             error("identificateur attendu", idToken);
             return null;
         }
         if (!match("SEMICOL")) {
-            Token next = peek();
-            error("';' attendu", next);
+            error("';' attendu", peek());
             return null;
         }
         return new VariableDeclarationNode(typeToken.getValue(), idToken.getValue());
     }
 
-    private StatementNode parseAssignment() {
+    // ================== Assignation / Unary ==================
+    private StatementNode parseAssignmentOrUnary() {
         Token idToken = consume(); // variable
-        if (!match("AFFECT")) {
-            error("'=' attendu", peek());
+        if (peek() != null && peek().getType().equals("AFFECT")) {
+            consume();
+            ExpressionNode expr = parseExpression();
+            if (!match("SEMICOL")) error("';' attendu", peek());
+            return new AssignmentNode(idToken.getValue(), expr);
+        } else if (peek() != null && (peek().getType().equals("INC") || peek().getType().equals("DEC"))) {
+            Token op = consume();
+            if (!match("SEMICOL")) error("';' attendu", peek());
+            return new UnaryStatementNode(idToken.getValue(), op.getValue(), false); // ← utilise StatementNode
+        } else {
+            error("expression ou assignation attendue", idToken);
             return null;
         }
+    }
+
+    // ================== Return ==================
+    private StatementNode parseReturnStatement() {
+        consume(); // RETURN
         ExpressionNode expr = parseExpression();
-        if (!match("SEMICOL")) {
-            error("';' attendu", peek());
-            return null;
-        }
-        return new AssignmentNode(idToken.getValue(), expr);
+        if (!match("SEMICOL")) error("';' attendu", peek());
+        return new ReturnNode(expr);
     }
 
     // ================== Expressions ==================
@@ -155,13 +176,28 @@ public class Parser {
     }
 
     private ExpressionNode parseMulDiv() {
-        ExpressionNode left = parsePrimary();
+        ExpressionNode left = parseUnary();
         while (peek() != null && (peek().getType().equals("MULT") || peek().getType().equals("DIV"))) {
             Token op = consume();
-            ExpressionNode right = parsePrimary();
+            ExpressionNode right = parseUnary();
             left = new BinaryExpressionNode(left, op.getValue(), right);
         }
         return left;
+    }
+
+    private ExpressionNode parseUnary() {
+        Token t = peek();
+        if (t != null && t.getType().equals("NOT")) {
+            consume();
+            ExpressionNode expr = parseUnary();
+            return new UnaryExpressionNode(null, "!", true, expr);
+        } else if (t != null && (t.getType().equals("INC") || t.getType().equals("DEC"))) {
+            consume();
+            ExpressionNode expr = parsePrimary();
+            return new UnaryExpressionNode(null, t.getValue(), true, expr);
+        } else {
+            return parsePrimary();
+        }
     }
 
     private ExpressionNode parsePrimary() {
@@ -177,9 +213,7 @@ public class Parser {
         } else if (t.getType().equals("OUV_PAREN")) {
             consume();
             ExpressionNode expr = parseExpression();
-            if (!match("FER_PAREN")) {
-                error("')' attendu", peek());
-            }
+            if (!match("FER_PAREN")) error("')' attendu", peek());
             return expr;
         } else {
             error("expression inattendue", t);
@@ -188,41 +222,140 @@ public class Parser {
         }
     }
 
-    // ================== Contrôle (if/while) ==================
+    // ================== Contrôle ==================
     private StatementNode parseControlStatement() {
-        Token t = consume(); // IF ou WHILE
-        if (!match("OUV_PAREN")) {
-            error("'(' attendu", peek());
-            return null;
+        Token t = consume(); // IF, WHILE, FOR, DO
+        switch (t.getType()) {
+            case "IF":
+                return parseIfStatement();
+            case "WHILE":
+                return parseWhileStatement();
+            case "FOR":
+                return parseForStatement();
+            case "DO":
+                return parseDoWhileStatement();
         }
-        ExpressionNode condition = parseExpression();
-        if (!match("FER_PAREN")) {
-            error("')' attendu", peek());
-            return null;
+        return null;
+    }
+
+    private StatementNode parseIfStatement() {
+        if (!match("OUV_PAREN")) { error("'(' attendu", peek()); return null; }
+        ExpressionNode cond = parseExpression();
+        if (!match("FER_PAREN")) { error("')' attendu", peek()); return null; }
+        if (!match("CROCH_OUV")) { error("'{' attendu", peek()); return null; }
+        List<StatementNode> block = parseBlock();
+        List<StatementNode> elseBlock = null;
+        if (peek() != null && peek().getType().equals("ELSE")) {
+            consume();
+            if (!match("CROCH_OUV")) { error("'{' attendu après else", peek()); return null; }
+            elseBlock = parseBlock();
         }
+        return new IfNode(cond, block, elseBlock);
+    }
+
+    private StatementNode parseWhileStatement() {
+        if (!match("OUV_PAREN")) { error("'(' attendu", peek()); return null; }
+        ExpressionNode cond = parseExpression();
+        if (!match("FER_PAREN")) { error("')' attendu", peek()); return null; }
+        if (!match("CROCH_OUV")) { error("'{' attendu", peek()); return null; }
+        List<StatementNode> block = parseBlock();
+        return new WhileNode(cond, block);
+    }
+
+    private StatementNode parseForStatement() {
+        if (!match("OUV_PAREN")) { error("'(' attendu", peek()); return null; }
+        StatementNode init = parseStatement();
+        ExpressionNode cond = parseExpression();
+        if (!match("SEMICOL")) error("';' attendu dans for", peek());
+        Token idToken = consume();
+
+        StatementNode incr = null;
+
+        if (peek() != null && peek().getType().equals("INC")) {
+            consume();
+            incr = new UnaryStatementNode(idToken.getValue(), "++", false);
+        }
+        else if (peek() != null && peek().getType().equals("DEC")) {
+            consume();
+            incr = new UnaryStatementNode(idToken.getValue(), "--", false);
+        }
+        else if (peek() != null && peek().getType().equals("AFFECT")) {
+            consume();
+            ExpressionNode expr = parseExpression();
+            incr = new AssignmentNode(idToken.getValue(), expr);
+        }
+        if (!match("FER_PAREN")) { error("')' attendu", peek()); return null; }
+        if (!match("CROCH_OUV")) { error("'{' attendu", peek()); return null; }
+        List<StatementNode> block = parseBlock();
+        return new ForNode(init, cond, incr, block);
+    }
+
+    private StatementNode parseDoWhileStatement() {
+
         if (!match("CROCH_OUV")) {
             error("'{' attendu", peek());
             return null;
         }
 
+        List<StatementNode> block = parseBlock();
+
+        if (!match("WHILE")) {
+            error("'while' attendu après do", peek());
+            return null;
+        }
+
+        if (!match("OUV_PAREN")) {
+            error("'(' attendu", peek());
+            return null;
+        }
+
+        ExpressionNode cond = parseExpression();
+
+        if (!match("FER_PAREN")) {
+            error("')' attendu", peek());
+            return null;
+        }
+
+        if (!match("SEMICOL")) {
+            error("';' attendu après do-while", peek());
+        }
+
+        return new DoWhileNode(cond, block);
+    }
+
+    private List<StatementNode> parseBlock() {
         List<StatementNode> block = new ArrayList<>();
         while (!match("CROCH_FER") && peek() != null) {
             StatementNode stmt = parseStatement();
             if (stmt != null) block.add(stmt);
         }
+        return block;
+    }
 
-        return new StatementNode() {
-            @Override
-            public String prettyPrint(int indent) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(indent(indent)).append(t.getValue())
-                        .append(" (").append(condition.prettyPrint(0)).append(") {\n");
-                for (StatementNode s : block) {
-                    sb.append(s.prettyPrint(indent + 1)).append("\n");
-                }
-                sb.append(indent(indent)).append("}");
-                return sb.toString();
+    // ================== Switch ==================
+    private StatementNode parseSwitchStatement() {
+        consume(); // SWITCH
+        if (!match("OUV_PAREN")) { error("'(' attendu", peek()); return null; }
+        ExpressionNode expr = parseExpression();
+        if (!match("FER_PAREN")) { error("')' attendu", peek()); return null; }
+        if (!match("CROCH_OUV")) { error("'{' attendu", peek()); return null; }
+
+        List<CaseNode> cases = new ArrayList<>();
+        while (peek() != null && !peek().getType().equals("CROCH_FER")) {
+            if (!match("CASE")) { error("'case' attendu", peek()); break; }
+            ExpressionNode caseExpr = parseExpression();
+            if (!match("COLON")) { error("':' attendu après case", peek()); break; }
+
+            List<StatementNode> caseBlock = new ArrayList<>();
+            while (peek() != null &&
+                    !peek().getType().equals("CASE") &&
+                    !peek().getType().equals("CROCH_FER")) {
+                StatementNode stmt = parseStatement();
+                if (stmt != null) caseBlock.add(stmt);
             }
-        };
+            cases.add(new CaseNode(caseExpr, caseBlock));
+        }
+        match("CROCH_FER"); // ferme le switch
+        return new SwitchNode(expr, cases);
     }
 }

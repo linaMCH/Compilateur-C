@@ -72,6 +72,7 @@ Commentaire      = "//" .* | "/*" ([^*] | \*+ [^/*])* \*+ "/"
   /* SEPARATEURS */
   "," { return token("COMMA"); }
   ";" { return token("SEMICOL"); }
+  ":" { return token("COLON"); }
 
   "(" { return token("OUV_PAREN"); }
   ")" { return token("FER_PAREN"); }
