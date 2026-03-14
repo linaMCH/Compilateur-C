@@ -182,6 +182,13 @@ public class HelloController {
     @FXML
     void handleClear() {
         codeArea.clear();
+
+        lexArea.clear();
+        syntaxArea.clear();
+        exeArea.clear();
+
+        statusLabel.setText("Prêt");
+        infoLabel.setText("");
     }
 
     @FXML
