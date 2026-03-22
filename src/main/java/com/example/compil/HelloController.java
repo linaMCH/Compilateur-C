@@ -8,6 +8,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.geometry.Side;
 import org.fxmisc.richtext.CodeArea;
+import com.example.compil.execution.Interpreter;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -178,8 +179,44 @@ public class HelloController {
 
     @FXML
     void handleExecute() {
-        exeArea.setText("Programme exécuté ✔");
-        statusLabel.setText("Exécution terminée");
+        try {
+
+            String code = codeArea.getText();
+
+
+            List<Token> tokens = LexerRunner.tokenize(code);
+            Parser parser = new Parser(tokens);
+            List<StatementNode> statements = parser.parse();
+
+            if (!parser.getErrors().isEmpty()) {
+                exeArea.setText("❌ Erreur de syntaxe. Corrigez le code avant d'exécuter.");
+                return;
+            }
+
+            // 3. Initialisation de l'interpréteur
+            com.example.compil.execution.Interpreter interpreter = new com.example.compil.execution.Interpreter();
+
+            // 4. Exécution de chaque instruction
+            StringBuilder output = new StringBuilder("--- Début de l'exécution ---\n\n");
+            for (StatementNode stmt : statements) {
+                stmt.accept(interpreter);
+            }
+
+            // 5. Affichage de l'état final de la mémoire (les variables)
+            output.append("✅ Exécution terminée avec succès.\n\n");
+            output.append("État final des variables :\n");
+            interpreter.getMemory().forEach((var, val) -> {
+                output.append(" • ").append(var).append(" = ").append(val).append("\n");
+            });
+
+            exeArea.setText(output.toString());
+            statusLabel.setText("Exécution terminée");
+
+        } catch (Exception e) {
+            // Capture des erreurs d'exécution (ex: division par zéro, variable non définie)
+            exeArea.setText("⚠️ ERREUR D'EXÉCUTION :\n" + e.getMessage());
+            statusLabel.setText("Échec de l'exécution");
+        }
     }
 
     @FXML
