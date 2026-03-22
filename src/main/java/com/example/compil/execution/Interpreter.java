@@ -102,26 +102,34 @@ public class Interpreter implements ASTVisitor {
 
     @Override public Object visit(CaseNode node) { return null; }
     @Override public Object visit(SwitchNode node) { return null; }
+
     @Override
     public Object visit(ForNode node) {
         // 1. Initialisation (ex: int i = 0)
-        if (node.getInit() != null) node.getInit().accept(this);
+        if (node.getInit() != null) {
+            node.getInit().accept(this);
+        }
 
         while (true) {
-            // 2. Condition (ex: i < 10)
+            // 2. Condition (ex: i < 5)
             Object condition = node.getCondition().accept(this);
-            boolean isTrue = (condition instanceof Boolean && (Boolean) condition) ||
-                    (condition instanceof Number && ((Number) condition).doubleValue() != 0);
+            boolean isTrue = false;
+            if (condition instanceof Boolean) isTrue = (Boolean) condition;
+            else if (condition instanceof Number) isTrue = ((Number) condition).doubleValue() != 0;
 
             if (!isTrue) break;
 
             // 3. Corps de la boucle
-            for (StatementNode stmt : node.getBody()) {
-                stmt.accept(this);
+            if (node.getBody() != null) {
+                for (StatementNode stmt : node.getBody()) {
+                    stmt.accept(this);
+                }
             }
 
             // 4. Incrémentation (ex: i++)
-            if (node.getIncrement() != null) node.getIncrement().accept(this);
+            if (node.getIncrement() != null) {
+                node.getIncrement().accept(this);
+            }
         }
         return null;
     }
