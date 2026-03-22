@@ -167,7 +167,25 @@ public class Interpreter implements ASTVisitor {
         }
         return null;
     }
-    @Override public Object visit(DoWhileNode node) { return null; }
+    @Override
+    public Object visit(DoWhileNode node) {
+        boolean isTrue;
+        do {
+            // 1. Exécuter le corps
+            for (StatementNode stmt : node.getBody()) {
+                stmt.accept(this);
+            }
+
+            // 2. Vérifier la condition
+            Object condition = node.getCondition().accept(this);
+            isTrue = false;
+            if (condition instanceof Boolean) isTrue = (Boolean) condition;
+            else if (condition instanceof Number) isTrue = ((Number) condition).doubleValue() != 0;
+
+        } while (isTrue);
+
+        return null;
+    }
     @Override public Object visit(ReturnNode node) { return null; }
     @Override
     public Object visit(UnaryExpressionNode node) {
