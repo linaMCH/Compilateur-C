@@ -844,8 +844,13 @@ private Token token(String type){
           // fall through
           case 59: break;
           case 17:
-            { return token("ID");
+          {
+            String text = yytext();
+            if (text.equals("print")) {
+              return token("PRINT");
             }
+            return token("ID");
+          }
           // fall through
           case 60: break;
           case 18:

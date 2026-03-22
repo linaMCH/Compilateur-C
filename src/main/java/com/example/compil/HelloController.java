@@ -29,7 +29,7 @@ public class HelloController {
     @FXML private Button helpButton;
 
     // ===== MOTIFS POUR COLORATION =====
-    private static final String KEYWORDS = "\\b(int|float|double|char|if|else|while|for|do|switch|case|return|void|const)\\b";
+    private static final String KEYWORDS = "\\b(int|float|double|char|if|else|while|for|do|switch|case|return|void|const|print)\\b";
     private static final String NUMBERS  = "\\b\\d+\\b";
     private static final String STRINGS  = "\"([^\"\\\\]|\\\\.)*\"";
     private static final String COMMENTS = "//[^\n]*|/\\*(.|\\R)*?\\*/";
@@ -201,6 +201,12 @@ public class HelloController {
             for (StatementNode stmt : statements) {
                 stmt.accept(interpreter);
             }
+
+            output.append("--- Sortie Programme ---\n");
+            for (String line : interpreter.getConsoleOutput()) {
+                output.append("> ").append(line).append("\n");
+            }
+            output.append("\n");
 
             // 5. Affichage de l'état final de la mémoire (les variables)
             output.append("Exécution terminée avec succès.\n\n");

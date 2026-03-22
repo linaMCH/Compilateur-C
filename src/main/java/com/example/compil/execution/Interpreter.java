@@ -1,6 +1,8 @@
 package com.example.compil.execution;
 
 import com.example.compil.ast.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
@@ -197,4 +199,16 @@ public class Interpreter implements ASTVisitor {
         return newVal;
     }
     @Override public Object visit(ExpressionNode node) { return null; }
+    private final List<String> consoleOutput = new ArrayList<>();
+
+    public List<String> getConsoleOutput() {
+        return consoleOutput;
+    }
+
+    @Override
+    public Object visit(PrintNode node) {
+        Object value = node.getExpression().accept(this);
+        consoleOutput.add(String.valueOf(value));
+        return value;
+    }
 }

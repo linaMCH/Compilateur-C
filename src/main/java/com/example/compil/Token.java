@@ -29,6 +29,8 @@ public class Token {
     public int getColumn() {
         return column;
     }
+    // Dans ta classe Token ou Lexer
+    public static final String PRINT = "PRINT";
 
     @Override
     public String toString() {

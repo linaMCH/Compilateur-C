@@ -69,6 +69,8 @@ public class Parser {
         if (t == null) return null;
 
         switch (t.getType()) {
+            case "PRINT":
+                return parsePrintStatement();
             case "INT":
             case "FLOAT":
             case "DOUBLE":
@@ -91,6 +93,7 @@ public class Parser {
 
             case "RETURN":
                 return parseReturnStatement();
+
 
             default:
                 return null;
@@ -371,5 +374,27 @@ public class Parser {
         }
         match("CROCH_FER"); // ferme le switch
         return new SwitchNode(expr, cases);
+    }
+    private StatementNode parsePrintStatement() {
+        consume(); // Consomme le token 'print'
+
+        if (!match("OUV_PAREN")) {
+            error("'(' attendu après print", peek());
+            return null;
+        }
+
+        ExpressionNode expr = parseExpression();
+
+        if (!match("FER_PAREN")) {
+            error("')' attendu après l'expression", peek());
+            return null;
+        }
+
+        if (!match("SEMICOL")) {
+            error("';' attendu", peek());
+            return null;
+        }
+
+        return new PrintNode(expr);
     }
 }

@@ -16,6 +16,7 @@ public interface ASTVisitor {
     Object visit (VariableDeclarationNode node);
     Object visit (DoWhileNode node);
     Object visit (UnaryStatementNode node);
+    Object visit (PrintNode node);
 
     // On ajoutera les autres au fur et à mesure
 }

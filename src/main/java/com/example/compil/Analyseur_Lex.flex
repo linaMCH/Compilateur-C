@@ -44,6 +44,7 @@ Commentaire      = "//" .* | "/*" ([^*] | \*+ [^/*])* \*+ "/"
   "do"       { return token("DO"); }
   "switch"   { return token("SWITCH"); }
   "case"     { return token("CASE"); }
+  "print"      { return token("PRINT"); }
 
   "#include" { return token("INCLUDE"); }
   "#define"  { return token("DEFINE"); }
