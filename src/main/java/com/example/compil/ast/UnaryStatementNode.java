@@ -5,6 +5,10 @@ public class UnaryStatementNode extends StatementNode {
     private String operator;
     private boolean prefix;
 
+    public String getVariable () { return variable;}
+    public String getOperator () { return operator;}
+    public boolean getPrefix () { return prefix;}
+
     public UnaryStatementNode(String variable, String operator, boolean prefix) {
         this.variable = variable;
         this.operator = operator;
@@ -14,5 +18,10 @@ public class UnaryStatementNode extends StatementNode {
     @Override
     public String prettyPrint(int indent) {
         return indent(indent) + "UnaryStmt: " + (prefix ? operator + variable : variable + operator);
+    }
+
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

@@ -2,10 +2,14 @@ package com.example.compil.ast;
 
 import java.util.List;
 
-public class IfNode extends StatementNode {
+public   class IfNode extends StatementNode {
     private ExpressionNode condition;
     private List<StatementNode> thenBlock;
     private List<StatementNode> elseBlock;
+
+    public ExpressionNode getCondition() { return condition; }
+    public List<StatementNode> getThenBlock() { return thenBlock; }
+    public List<StatementNode> getElseBlock() { return elseBlock; }
 
     public IfNode(ExpressionNode condition, List<StatementNode> thenBlock, List<StatementNode> elseBlock) {
         this.condition = condition;
@@ -25,5 +29,10 @@ public class IfNode extends StatementNode {
             for (StatementNode stmt : elseBlock) sb.append(stmt.prettyPrint(indent + 2)).append("\n");
         }
         return sb.toString();
+    }
+
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

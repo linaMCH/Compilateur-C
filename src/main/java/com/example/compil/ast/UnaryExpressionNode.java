@@ -7,6 +7,22 @@ public class UnaryExpressionNode extends ExpressionNode {
     private boolean prefix; // true si préfixe
     private ExpressionNode expr;
 
+    public String getVariable() {
+        return variable;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public boolean getPrefix() {
+        return prefix;
+    }
+
+    public ExpressionNode getExpr() {
+        return expr;
+    }
+
     public UnaryExpressionNode(String variable, String operator, boolean prefix) {
         this(variable, operator, prefix, null);
     }
@@ -22,5 +38,10 @@ public class UnaryExpressionNode extends ExpressionNode {
     public String prettyPrint(int indent) {
         if (expr != null) return (prefix ? operator : "") + expr.prettyPrint(0) + (prefix ? "" : operator);
         return (prefix ? operator : "") + variable + (prefix ? "" : operator);
+    }
+
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

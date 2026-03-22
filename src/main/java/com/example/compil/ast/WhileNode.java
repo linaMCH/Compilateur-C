@@ -6,6 +6,9 @@ public class WhileNode extends StatementNode {
     private ExpressionNode condition;
     private List<StatementNode> body;
 
+    public ExpressionNode getCondition() { return condition; }
+    public List<StatementNode> getBody() { return body; }
+
     public WhileNode(ExpressionNode condition, List<StatementNode> body) {
         this.condition = condition;
         this.body = body;
@@ -19,5 +22,9 @@ public class WhileNode extends StatementNode {
         sb.append(indent(indent + 1)).append("Body:\n");
         for (StatementNode stmt : body) sb.append(stmt.prettyPrint(indent + 2)).append("\n");
         return sb.toString();
+    }
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

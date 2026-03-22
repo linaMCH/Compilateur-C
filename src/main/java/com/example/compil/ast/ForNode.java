@@ -2,11 +2,16 @@ package com.example.compil.ast;
 
 import java.util.List;
 
-public class ForNode extends StatementNode {
+public  class ForNode extends StatementNode {
     private StatementNode init;
     private ExpressionNode condition;
     private StatementNode increment;
     private List<StatementNode> body;
+
+    public StatementNode getinit() { return init; }
+    public ExpressionNode getcondition() { return condition; }
+    public StatementNode getincrement() { return increment; }
+    public List<StatementNode> getBody() { return body; }
 
     public ForNode(StatementNode init, ExpressionNode condition, StatementNode increment, List<StatementNode> body) {
         this.init = init;
@@ -25,5 +30,10 @@ public class ForNode extends StatementNode {
         sb.append(indent(indent + 1)).append("Body:\n");
         for (StatementNode stmt : body) sb.append(stmt.prettyPrint(indent + 2)).append("\n");
         return sb.toString();
+    }
+
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }

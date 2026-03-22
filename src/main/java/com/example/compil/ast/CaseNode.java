@@ -1,10 +1,15 @@
 package com.example.compil.ast;
 
+import com.sun.jdi.Value;
+
 import java.util.List;
 
     public class CaseNode extends StatementNode {
         private ExpressionNode value;
         private List<StatementNode> body;
+
+        public ExpressionNode getValue() { return value; }
+        public List<StatementNode> getBody() { return body; }
 
         public CaseNode(ExpressionNode value, List<StatementNode> body) {
             this.value = value;
@@ -17,5 +22,10 @@ import java.util.List;
             sb.append(indent(indent)).append("Case: ").append(value.prettyPrint(0)).append("\n");
             for (StatementNode stmt : body) sb.append(stmt.prettyPrint(indent + 1)).append("\n");
             return sb.toString();
+        }
+
+        @Override
+        public Object accept(ASTVisitor visitor) {
+            return visitor.visit(this);
         }
     }

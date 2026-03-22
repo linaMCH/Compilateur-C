@@ -6,6 +6,10 @@ public class VariableDeclarationNode extends StatementNode {
     private String variable;
     private ExpressionNode initializer;
 
+    public String getType () { return type;}
+    public String getVariableName () { return variable;}
+    public ExpressionNode getInitializer () { return initializer;}
+
     public VariableDeclarationNode(String type, String variable) {
         this(type, variable, null);
     }
@@ -24,5 +28,10 @@ public class VariableDeclarationNode extends StatementNode {
             result += " = " + initializer.prettyPrint(0);
         }
         return result;
+    }
+
+    @Override
+    public Object accept(ASTVisitor visitor) {
+        return visitor.visit(this);
     }
 }
