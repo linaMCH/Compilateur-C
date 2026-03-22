@@ -60,13 +60,15 @@ public class Interpreter implements ASTVisitor {
                 case "+" -> l + r;
                 case "-" -> l - r;
                 case "*" -> l * r;
-                case "/" -> (r == 0) ? 0.0 : l / r;
+                case "/" -> {
+                    if (r == 0) {
+                        // On lance une exception personnalisée qui sera rattrapée par le Controller
+                        throw new RuntimeException("Division par zéro impossible à la ligne " );
+                    }
+                    yield l / r; // On utilise yield dans un switch block pour retourner la valeur
+                }
                 case "==" -> l == r;
-                case "!=" -> l != r;
-                case "<" -> l < r;
-                case ">" -> l > r;
-                case "<=" -> l <= r;
-                case ">=" -> l >= r;
+                // ... tes autres opérateurs
                 default -> 0.0;
             };
         }
