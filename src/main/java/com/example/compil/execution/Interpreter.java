@@ -102,8 +102,40 @@ public class Interpreter implements ASTVisitor {
         return null;
     }
 
-    @Override public Object visit(CaseNode node) { return null; }
-    @Override public Object visit(SwitchNode node) { return null; }
+    @Override
+    public Object visit(CaseNode node) {
+
+        return null;
+    }
+    @Override
+    public Object visit(SwitchNode node) {
+        // 1. Évaluer l'expression du switch (ex: switch(x))
+        Object switchValue = node.getExpression().accept(this);
+        boolean foundMatch = false;
+
+        // 2. Parcourir les cases
+        for (CaseNode caseNode : node.getCases()) {
+            // Un case null représente souvent le 'default'
+            if (caseNode.getValue() == null) {
+                executeCaseBody(caseNode);
+                foundMatch = true;
+                break;
+            }
+
+            Object caseValue = caseNode.getValue().accept(this);
+            if (switchValue.equals(caseValue)) {
+                executeCaseBody(caseNode);
+                foundMatch = true;
+                break; // On sort après le premier match (simulation simple sans fallthrough)
+            }
+        }
+        return null;
+    }
+    private void executeCaseBody(CaseNode node) {
+        for (StatementNode stmt : node.getStatements()) {
+            stmt.accept(this);
+        }
+    }
 
     @Override
     public Object visit(ForNode node) {

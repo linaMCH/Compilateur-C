@@ -6,7 +6,7 @@ public class SwitchNode extends StatementNode {
     private ExpressionNode expr;
     private List<CaseNode> cases;
 
-    public ExpressionNode getExpr() { return expr;}
+    public ExpressionNode getExpression() { return expr;}
 
     public List<CaseNode> getCases() {
         return cases;

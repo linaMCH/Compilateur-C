@@ -9,7 +9,7 @@ import java.util.List;
         private List<StatementNode> body;
 
         public ExpressionNode getValue() { return value; }
-        public List<StatementNode> getBody() { return body; }
+        public List<StatementNode> getStatements() { return body; }
 
         public CaseNode(ExpressionNode value, List<StatementNode> body) {
             this.value = value;
