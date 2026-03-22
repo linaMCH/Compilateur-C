@@ -1,21 +1,23 @@
 package com.example.compil.ast;
 
 public class LiteralNode extends ExpressionNode {
-    private String value;
+    private Object value;
 
-    public Object getValue() { return value; }
-
-    public LiteralNode(String value) {
+    public LiteralNode(Object value) {
         this.value = value;
     }
 
-    @Override
-    public String prettyPrint(int indent) {
+    public Object getValue() {
         return value;
     }
 
     @Override
     public Object accept(ASTVisitor visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String prettyPrint(int indent) {
+        return "  ".repeat(indent) + "Literal: " + value;
     }
 }

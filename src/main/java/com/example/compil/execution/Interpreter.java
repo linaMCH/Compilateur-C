@@ -7,10 +7,8 @@ import java.util.List;
 
 public class Interpreter implements ASTVisitor {
 
-    // La mémoire vive : NomVariable -> Valeur
     private final Map<String, Object> memory = new HashMap<>();
 
-    // Méthode pour obtenir l'état final de la mémoire (pour l'affichage UI)
     public Map<String, Object> getMemory() {
         return memory;
     }
@@ -27,6 +25,16 @@ public class Interpreter implements ASTVisitor {
             return memory.get(name);
         }
         throw new RuntimeException("Erreur : Variable '" + name + "' non définie.");
+    }
+
+    @Override
+    public Object visit(VariableDeclarationNode node) {
+        Object initialValue = 0.0;
+        if (node.getInitializer() != null) {
+            initialValue = node.getInitializer().accept(this);
+        }
+        memory.put(node.getVariableName(), initialValue);
+        return initialValue;
     }
 
     @Override
@@ -50,17 +58,14 @@ public class Interpreter implements ASTVisitor {
                 case "+" -> l + r;
                 case "-" -> l - r;
                 case "*" -> l * r;
-                case "/" -> {
-                    if (r == 0) throw new RuntimeException("Division par zéro !");
-                    yield l / r;
-                }
+                case "/" -> (r == 0) ? 0.0 : l / r;
                 case "==" -> l == r;
                 case "!=" -> l != r;
-                case "<"  -> l < r;
-                case ">"  -> l > r;
+                case "<" -> l < r;
+                case ">" -> l > r;
                 case "<=" -> l <= r;
                 case ">=" -> l >= r;
-                default -> throw new RuntimeException("Opérateur inconnu : " + op);
+                default -> 0.0;
             };
         }
         throw new RuntimeException("Opération impossible sur des types non numériques.");
@@ -69,20 +74,14 @@ public class Interpreter implements ASTVisitor {
     @Override
     public Object visit(IfNode node) {
         Object condition = node.getCondition().accept(this);
-
-        // En C, 0 est faux, tout le reste est vrai
         boolean isTrue = false;
         if (condition instanceof Boolean) isTrue = (Boolean) condition;
         else if (condition instanceof Number) isTrue = ((Number) condition).doubleValue() != 0;
 
         if (isTrue) {
-            for (StatementNode stmt : node.getThenBlock()) {
-                stmt.accept(this);
-            }
+            for (StatementNode stmt : node.getThenBlock()) stmt.accept(this);
         } else if (node.getElseBlock() != null) {
-            for (StatementNode stmt : node.getElseBlock()) {
-                stmt.accept(this);
-            }
+            for (StatementNode stmt : node.getElseBlock()) stmt.accept(this);
         }
         return null;
     }
@@ -96,22 +95,10 @@ public class Interpreter implements ASTVisitor {
             else if (condition instanceof Number) isTrue = ((Number) condition).doubleValue() != 0;
 
             if (!isTrue) break;
-
-            for (StatementNode stmt : node.getBody()) {
-                stmt.accept(this);
-            }
+            for (StatementNode stmt : node.getBody()) stmt.accept(this);
         }
         return null;
     }
-
-    @Override
-    public Object visit(VariableDeclarationNode node) {
-        // Initialisation par défaut à 0.0 pour un compilateur C simplifié
-        memory.put(node.getVariableName(), 0.0);
-        return null;
-    }
-
-    // --- Méthodes de l'interface à laisser vides ou avec retour par défaut ---
 
     @Override public Object visit(CaseNode node) { return null; }
     @Override public Object visit(SwitchNode node) { return null; }

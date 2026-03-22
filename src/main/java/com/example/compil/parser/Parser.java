@@ -215,9 +215,12 @@ public class Parser {
         Token t = peek();
         if (t == null) return null;
 
-        if (t.getType().equals("NUM_INT") || t.getType().equals("NUM_FLOAT")) {
+        if (t.getType().equals("NUM_INT")) {
             consume();
-            return new LiteralNode(t.getValue());
+            return new LiteralNode(Integer.valueOf(t.getValue()));
+        } else if (t.getType().equals("NUM_FLOAT")) {
+            consume();
+            return new LiteralNode(Double.valueOf(t.getValue()));
         } else if (t.getType().equals("ID")) {
             consume();
             return new VariableNode(t.getValue());
