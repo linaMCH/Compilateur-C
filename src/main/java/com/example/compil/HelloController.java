@@ -189,7 +189,7 @@ public class HelloController {
             List<StatementNode> statements = parser.parse();
 
             if (!parser.getErrors().isEmpty()) {
-                exeArea.setText("❌ Erreur de syntaxe. Corrigez le code avant d'exécuter.");
+                exeArea.setText(" Erreur de syntaxe. Corrigez le code avant d'exécuter.");
                 return;
             }
 
@@ -203,7 +203,7 @@ public class HelloController {
             }
 
             // 5. Affichage de l'état final de la mémoire (les variables)
-            output.append("✅ Exécution terminée avec succès.\n\n");
+            output.append("Exécution terminée avec succès.\n\n");
             output.append("État final des variables :\n");
             interpreter.getMemory().forEach((var, val) -> {
                 output.append(" • ").append(var).append(" = ").append(val).append("\n");
@@ -214,7 +214,7 @@ public class HelloController {
 
         } catch (Exception e) {
             // Capture des erreurs d'exécution (ex: division par zéro, variable non définie)
-            exeArea.setText("⚠️ ERREUR D'EXÉCUTION :\n" + e.getMessage());
+            exeArea.setText("⚠ ERREUR D'EXÉCUTION :\n" + e.getMessage());
             statusLabel.setText("Échec de l'exécution");
         }
     }
