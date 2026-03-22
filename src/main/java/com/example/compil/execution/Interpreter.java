@@ -102,10 +102,91 @@ public class Interpreter implements ASTVisitor {
 
     @Override public Object visit(CaseNode node) { return null; }
     @Override public Object visit(SwitchNode node) { return null; }
-    @Override public Object visit(ForNode node) { return null; }
+    @Override
+    public Object visit(ForNode node) {
+        // 1. Initialisation (ex: int i = 0)
+        if (node.getInit() != null) node.getInit().accept(this);
+
+        while (true) {
+            // 2. Condition (ex: i < 10)
+            Object condition = node.getCondition().accept(this);
+            boolean isTrue = (condition instanceof Boolean && (Boolean) condition) ||
+                    (condition instanceof Number && ((Number) condition).doubleValue() != 0);
+
+            if (!isTrue) break;
+
+            // 3. Corps de la boucle
+            for (StatementNode stmt : node.getBody()) {
+                stmt.accept(this);
+            }
+
+            // 4. Incrémentation (ex: i++)
+            if (node.getIncrement() != null) node.getIncrement().accept(this);
+        }
+        return null;
+    }
     @Override public Object visit(DoWhileNode node) { return null; }
     @Override public Object visit(ReturnNode node) { return null; }
-    @Override public Object visit(UnaryExpressionNode node) { return null; }
-    @Override public Object visit(UnaryStatementNode node) { return null; }
+    @Override
+    public Object visit(UnaryExpressionNode node) {
+        String op = node.getOperator();
+        Object value;
+
+        // 1. Déterminer la valeur à transformer
+        if (node.getExpr() != null) {
+            value = node.getExpr().accept(this);
+        } else if (node.getVariable() != null) {
+            if (!memory.containsKey(node.getVariable())) {
+                throw new RuntimeException("Variable '" + node.getVariable() + "' non définie.");
+            }
+            value = memory.get(node.getVariable());
+        } else {
+            return null;
+        }
+
+        // 2. Appliquer l'opérateur
+        if (value instanceof Number) {
+            double d = ((Number) value).doubleValue();
+
+            switch (op) {
+                case "++":
+                    double postInc = d + 1;
+                    if (node.getVariable() != null) memory.put(node.getVariable(), postInc);
+                    return node.getPrefix() ? postInc : d;
+                case "--":
+                    double postDec = d - 1;
+                    if (node.getVariable() != null) memory.put(node.getVariable(), postDec);
+                    return node.getPrefix() ? postDec : d;
+                case "-":
+                    return -d;
+                default:
+                    return d;
+            }
+        } else if (value instanceof Boolean) {
+            boolean b = (Boolean) value;
+            return op.equals("!") ? !b : b;
+        }
+
+        return null;
+    }
+    @Override
+    public Object visit(UnaryStatementNode node) {
+        String varName = node.getVariableName();
+        if (!memory.containsKey(varName)) {
+            throw new RuntimeException("Erreur : Variable '" + varName + "' non définie.");
+        }
+
+        double currentVal = ((Number) memory.get(varName)).doubleValue();
+        String op = node.getOperator();
+
+        double newVal = switch (op) {
+            case "++" -> currentVal + 1;
+            case "--" -> currentVal - 1;
+            default -> currentVal;
+        };
+
+        memory.put(varName, newVal);
+        return newVal;
+    }
     @Override public Object visit(ExpressionNode node) { return null; }
 }

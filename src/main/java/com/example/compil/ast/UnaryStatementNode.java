@@ -5,7 +5,7 @@ public class UnaryStatementNode extends StatementNode {
     private String operator;
     private boolean prefix;
 
-    public String getVariable () { return variable;}
+    public String getVariableName () { return variable;}
     public String getOperator () { return operator;}
     public boolean getPrefix () { return prefix;}
 

@@ -8,9 +8,9 @@ public  class ForNode extends StatementNode {
     private StatementNode increment;
     private List<StatementNode> body;
 
-    public StatementNode getinit() { return init; }
-    public ExpressionNode getcondition() { return condition; }
-    public StatementNode getincrement() { return increment; }
+    public StatementNode getInit() { return init; }
+    public ExpressionNode getCondition() { return condition; }
+    public StatementNode getIncrement() { return increment; }
     public List<StatementNode> getBody() { return body; }
 
     public ForNode(StatementNode init, ExpressionNode condition, StatementNode increment, List<StatementNode> body) {
