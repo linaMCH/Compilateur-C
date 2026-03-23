@@ -1,7 +1,5 @@
 package com.example.compil.ast;
 
-import com.sun.jdi.Value;
-
 import java.util.List;
 
     public class CaseNode extends StatementNode {
