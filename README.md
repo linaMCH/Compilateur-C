@@ -119,7 +119,7 @@ Le projet a été validé via une suite de tests rigoureux :
 
 ---
 
-## 👥 Équipe de développement (ING3)
+##  Équipe de développement (ING3)
 
 * **Nour El Imene Sahi**
 * **Lina Maouche**
