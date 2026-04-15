@@ -13,7 +13,7 @@ Ce projet est un **mini-compilateur** pédagogique capable d’analyser, de vér
 - **Analyse Lexicale :** Générée avec **JFlex** pour une tokenisation précise.
 - **Analyse Syntaxique :** Implémentation d'un **parseur récursif descendant**.
 - **Arbre Syntaxique Abstrait (AST) :** Construction d'une représentation intermédiaire structurée.
-- **Interpréteur :** Exécution séquentielle avec gestion d'une table des symboles.
+- **Interpréteur & Exécution :** - Exécution séquentielle avec gestion d'une **table des symboles** dynamique (`HashMap`).
 - **Gestion des Erreurs :** Localisation précise (ligne/colonne) des erreurs de syntaxe.
 - **Interface Graphique :** Éditeur interactif moderne développé en **JavaFX**.
 
